@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringBootNoJpaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringBootNoJpaApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootNoJpaApplication.class, args);
+    }
 
 }
