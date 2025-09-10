@@ -12,12 +12,11 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>>notFoundHandler(ResourceNotFoundException resourceNotFoundException)
-    {
-        Map map=new HashMap<>();
+    public ResponseEntity<Map<String, Object>> notFoundHandler(ResourceNotFoundException resourceNotFoundException) {
+        Map map = new HashMap<>();
         map.put("status", HttpStatus.NOT_FOUND);
-        map.put("message:",resourceNotFoundException.getMessage());
-        map.put("success",false);
+        map.put("message:", resourceNotFoundException.getMessage());
+        map.put("success", false);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     }
