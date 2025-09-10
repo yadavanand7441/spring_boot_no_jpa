@@ -1,6 +1,7 @@
 package com.spring.no.jpa.boot.services.impl;
 
 import com.spring.no.jpa.boot.entity.StudentData;
+import com.spring.no.jpa.boot.exceptions.ResourceNotFoundException;
 import com.spring.no.jpa.boot.services.StudentDataService;
 import org.springframework.stereotype.Service;
 
@@ -34,5 +35,37 @@ public class StudentDataServiceImpl implements StudentDataService {
     public List<StudentData> getAllStudentData() {
         return studentDataList;
     }
+
+    @Override
+    public StudentData updateStudentData(StudentData studentData, int studentId) {
+        StudentData updateStudentData = studentDataList.stream().filter(e -> e.getStudentId() == studentId).findFirst().orElseThrow(() ->
+                new ResourceNotFoundException("you can not update the student data because student is not present with given id" + studentId));
+        updateStudentData.setStudentName(studentData.getStudentName());
+        updateStudentData.setStudentAddress(studentData.getStudentAddress());
+        updateStudentData.setStudentAge(studentData.getStudentAge());
+        updateStudentData.setStudentFees(studentData.getStudentFees());
+        return updateStudentData;
+    }
+
+    @Override
+    public StudentData getStudentDataWithId(int studentId) {
+        StudentData studentDataWithId = studentDataList.stream().filter(e -> e.getStudentId() == studentId).findFirst().orElseThrow(() ->
+                new ResourceNotFoundException("student data is not found with given id please check !" + studentId));
+        return studentDataWithId;
+    }
+
+    @Override
+    public StudentData deleteByStudentId(int studentId) {
+        StudentData deleteStudentDataById = studentDataList.stream().filter(e -> e.getStudentId() == studentId).findFirst().orElseThrow(() ->
+                new ResourceNotFoundException("student data is not deleted because that student is not present with given id" + studentId));
+        return deleteStudentDataById;
+    }
+
+    @Override
+    public List<StudentData> addListOfStudent(List<StudentData> listOfStudentData) {
+        studentDataList.addAll(listOfStudentData);
+        return studentDataList;
+    }
+
 
 }
