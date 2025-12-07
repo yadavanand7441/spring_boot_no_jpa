@@ -26,7 +26,7 @@ public class StudentController {
     public ResponseEntity<StudentData> addStudentData(@RequestBody StudentData studentData) {
         try {
             StudentData addStudentData = studentDataServiceImpl.createStudent(studentData);
-            logger.info("student data have been added into DB !", addStudentData);
+            logger.info("student data have been added into DB{} ", addStudentData);
             return ResponseEntity.ok(addStudentData);
         } catch (Exception e) {
             logger.info("something is wrong, Please check again !");
@@ -37,35 +37,35 @@ public class StudentController {
     @GetMapping("/studentDataList")
     public ResponseEntity<List<StudentData>> getAllStudentData() {
         List<StudentData> allStudentData = studentDataServiceImpl.getAllStudentData();
-        logger.info("all student data is fetched from DB !" , allStudentData);
+        logger.info("all student data is fetched from DB{} " , allStudentData);
         return ResponseEntity.ok(allStudentData);
     }
 
     @PutMapping("/update/{studentId}")
     public ResponseEntity<StudentData> updateStudentRecord(@RequestBody StudentData studentData, @PathVariable("studentId") int studentId) {
         StudentData updatedStudentData = studentDataServiceImpl.updateStudentData(studentData, studentId);
-        logger.info("student data updated " , updatedStudentData);
+        logger.info("student data updated{} " , updatedStudentData);
         return ResponseEntity.ok(updatedStudentData);
     }
 
     @GetMapping("/fetch/{studentId}")
     public ResponseEntity<StudentData> getSingleStudentWithId(@PathVariable("studentId") int studentId) {
         StudentData studentDataWithId = studentDataServiceImpl.getStudentDataWithId(studentId);
-        logger.info("student is found with given id " , studentDataWithId);
+        logger.info("student is found with given id{} " , studentDataWithId);
         return ResponseEntity.ok(studentDataWithId);
     }
 
     @DeleteMapping("/delete/{studentId}")
     public ResponseEntity<StudentData> deleteStudentById(@PathVariable("studentId") int studentId) {
         StudentData deleteByStudentId = studentDataServiceImpl.deleteByStudentId(studentId);
-        logger.info("student data have been deleted with given id " , studentId);
+        logger.info("student data have been deleted with given id{} " , studentId);
         return ResponseEntity.ok(deleteByStudentId);
     }
 
     @PostMapping("/listOfStudent")
     public ResponseEntity<List<StudentData>> addListOfStudent(@RequestBody List<StudentData> listOfStudent) {
         List<StudentData> addListOfStudent = studentDataServiceImpl.addListOfStudent(listOfStudent);
-        logger.info("list of student have been added into DB " , addListOfStudent);
+        logger.info("list of student have been added into DB{} " , addListOfStudent);
         return ResponseEntity.ok(addListOfStudent);
     }
 }
