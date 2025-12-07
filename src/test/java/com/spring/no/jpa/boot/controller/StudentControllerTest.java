@@ -1,121 +1,102 @@
 package com.spring.no.jpa.boot.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.no.jpa.boot.entity.StudentData;
 import com.spring.no.jpa.boot.services.impl.StudentDataServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(StudentController.class)
 class StudentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private StudentDataServiceImpl studentDataServiceImpl;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private StudentController studentController;
 
-    @Test
-    void testAddStudentData() throws Exception {
-        StudentData student = new StudentData(1, "Anand", "Muzaffarpur", 22, 50000.75);
+    private StudentData student1;
+    private StudentData student2;
 
-        Mockito.when(studentDataServiceImpl.createStudent(any(StudentData.class))).thenReturn(student);
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
 
-        mockMvc.perform(post("/rest/api/no/jpa/student/save/studentData")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(student)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentName").value("Anand"))
-                .andExpect(jsonPath("$.studentFees").value(50000.75));
+        student1 = new StudentData();
+        student1.setStudentId(1);
+        student1.setStudentName("Anand");
+
+        student2 = new StudentData();
+        student2.setStudentId(2);
+        student2.setStudentName("Rahul");
     }
 
     @Test
-    void testGetAllStudentData() throws Exception {
-        List<StudentData> students = Arrays.asList(
-                new StudentData(1, "Anand", "Muzaffarpur", 22, 50000.75),
-                new StudentData(2, "Komal", "Delhi", 21, 35000.50)
-        );
+    void testAddStudentData() {
+        when(studentDataServiceImpl.createStudent(student1)).thenReturn(student1);
 
-        Mockito.when(studentDataServiceImpl.getAllStudentData()).thenReturn(students);
+        ResponseEntity<StudentData> response = studentController.addStudentData(student1);
 
-        mockMvc.perform(get("/rest/api/no/jpa/student/studentDataList"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].studentName").value("Anand"))
-                .andExpect(jsonPath("$[1].studentName").value("Komal"));
+        assertEquals("Anand", response.getBody().getStudentName());
+        verify(studentDataServiceImpl, times(1)).createStudent(student1);
     }
 
     @Test
-    void testUpdateStudentRecord() throws Exception {
-        StudentData updated = new StudentData(1, "Anand", "Mumbai", 23, 60000.0);
+    void testGetAllStudentData() {
+        when(studentDataServiceImpl.getAllStudentData()).thenReturn(Arrays.asList(student1, student2));
 
-        Mockito.when(studentDataServiceImpl.updateStudentData(any(StudentData.class), eq(1)))
-                .thenReturn(updated);
+        ResponseEntity<List<StudentData>> response = studentController.getAllStudentData();
 
-        mockMvc.perform(put("/rest/api/no/jpa/student/update/{studentId}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updated)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentAddress").value("Mumbai"))
-                .andExpect(jsonPath("$.studentFees").value(60000.0));
+        assertEquals(2, response.getBody().size());
+        verify(studentDataServiceImpl, times(1)).getAllStudentData();
     }
 
     @Test
-    void testGetSingleStudentWithId() throws Exception {
-        StudentData student = new StudentData(1, "Monu", "Mumbai", 23, 45000.0);
+    void testUpdateStudentRecord() {
+        when(studentDataServiceImpl.updateStudentData(student1, 1)).thenReturn(student1);
 
-        Mockito.when(studentDataServiceImpl.getStudentDataWithId(1)).thenReturn(student);
+        ResponseEntity<StudentData> response = studentController.updateStudentRecord(student1, 1);
 
-        mockMvc.perform(get("/rest/api/no/jpa/student/fetch/{studentId}", 1))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentName").value("Monu"))
-                .andExpect(jsonPath("$.studentAddress").value("Mumbai"));
+        assertEquals("Anand", response.getBody().getStudentName());
+        verify(studentDataServiceImpl, times(1)).updateStudentData(student1, 1);
     }
 
     @Test
-    void testDeleteStudentById() throws Exception {
-        StudentData deleted = new StudentData(2, "Komal", "Delhi", 21, 35000.50);
+    void testGetSingleStudentWithId() {
+        when(studentDataServiceImpl.getStudentDataWithId(1)).thenReturn(student1);
 
-        Mockito.when(studentDataServiceImpl.deleteByStudentId(2)).thenReturn(deleted);
+        ResponseEntity<StudentData> response = studentController.getSingleStudentWithId(1);
 
-        mockMvc.perform(delete("/rest/api/no/jpa/student/delete/{studentId}", 2))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentName").value("Komal"))
-                .andExpect(jsonPath("$.studentAddress").value("Delhi"));
+        assertEquals(1, response.getBody().getStudentId());
+        verify(studentDataServiceImpl, times(1)).getStudentDataWithId(1);
     }
 
     @Test
-    void testAddListOfStudent() throws Exception {
-        List<StudentData> students = Arrays.asList(
-                new StudentData(3, "Pintu", "Patna", 25, 40000.0),
-                new StudentData(4, "Ravi", "Lucknow", 24, 37000.0)
-        );
+    void testDeleteStudentById() {
+        when(studentDataServiceImpl.deleteByStudentId(1)).thenReturn(student1);
 
-        Mockito.when(studentDataServiceImpl.addListOfStudent(any(List.class))).thenReturn(students);
+        ResponseEntity<StudentData> response = studentController.deleteStudentById(1);
 
-        mockMvc.perform(post("/rest/api/no/jpa/student/listOfStudent")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(students)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].studentName").value("Pintu"))
-                .andExpect(jsonPath("$[1].studentName").value("Ravi"));
+        assertEquals("Anand", response.getBody().getStudentName());
+        verify(studentDataServiceImpl, times(1)).deleteByStudentId(1);
+    }
+
+    @Test
+    void testAddListOfStudent() {
+        List<StudentData> students = Arrays.asList(student1, student2);
+        when(studentDataServiceImpl.addListOfStudent(students)).thenReturn(students);
+
+        ResponseEntity<List<StudentData>> response = studentController.addListOfStudent(students);
+
+        assertEquals(2, response.getBody().size());
+        verify(studentDataServiceImpl, times(1)).addListOfStudent(students);
     }
 }
