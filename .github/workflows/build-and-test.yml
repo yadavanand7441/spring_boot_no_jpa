@@ -1,0 +1,39 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B clean verify
+
+      - name: Generate Coverage Report (Jacoco)
+        run: mvn test jacoco:report
+
+      - name: SonarCloud Scan
+        # SonarCloud scan sirf main branch par chalega
+        if: github.ref == 'refs/heads/main'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn -B sonar:sonar \
+          -Dsonar.projectKey=yadavanand7441_spring_core \
+          -Dsonar.organization=yadavanand7441 \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${SONAR_TOKEN}
